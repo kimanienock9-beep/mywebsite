@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Kimani Enock Technology - Learning Platform</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root{--bg1:#0f1724;--bg2:#082032;--accent:#f6c84c;--muted:#9aa6b2;--green:#51cf66;--red:#ff6b6b}
+		*{box-sizing:border-box}
+		html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,-apple-system,"Helvetica Neue",Arial}
+		body{background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6eef6;overflow-x:hidden}
+		
+		/* Auth Screen */
+		#authScreen{display:flex;height:100vh;align-items:center;justify-content:center;position:fixed;inset:0;z-index:2000;background:linear-gradient(135deg,var(--bg1),var(--bg2))}
+		#authScreen.hidden{display:none}
+		.auth-box{background:#06121a;padding:32px;border-radius:16px;width:100%;max-width:420px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+		.auth-box h2{margin:0 0 24px 0;color:var(--accent);text-align:center;font-size:24px}
+		.auth-form{display:flex;flex-direction:column;gap:12px}
+		.auth-form input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;color:inherit;font-size:14px}
+		.auth-form input:focus{outline:none;background:rgba(255,255,255,0.08);border-color:var(--accent)}
+		.auth-form button{background:var(--accent);color:#06111a;padding:12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:14px}
+		.auth-form button:hover{background:#f6d860}
+		.auth-toggle{text-align:center;margin-top:16px;color:var(--muted);font-size:13px}
+		.auth-toggle button{background:none;border:none;color:var(--accent);cursor:pointer;font-weight:600}
+		.auth-msg{color:var(--red);font-size:12px;margin-top:8px;text-align:center;min-height:16px}
+		.auth-msg.success{color:var(--green)}
+		
+		/* Main App */
+		#mainApp{display:flex;flex-direction:column;min-height:100vh}
+		#mainApp.hidden{display:none}
+		.container{width:100%;max-width:1200px;margin:0 auto;padding:20px;flex:1}
+		
+		/* Header */
+		header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;background:rgba(0,0,0,0.3);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
+		.brand{display:flex;gap:12px;align-items:center}
+		.logo{width:50px;height:50px;border-radius:10px;background:linear-gradient(135deg,#0ea5a9,#f6c84c);display:flex;align-items:center;justify-content:center;font-weight:700;color:#06111a;font-size:11px;text-align:center}
+		h1{font-size:22px;margin:0;font-weight:700}
+		.badge{font-size:11px;color:var(--accent);margin-top:4px}
+		.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+		.search{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:8px 12px;border-radius:8px;color:inherit;width:220px;font-size:13px}
+		.search:focus{outline:none;border-color:var(--accent)}
+		.btn{background:var(--accent);color:#06111a;padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px}
+		.btn:hover{background:#f6d860}
+		.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#e6eef6}
+		.btn.secondary:hover{background:rgba(255,255,255,0.08)}
+		
+		/* Main Content */
+		main{display:grid;grid-template-columns:1fr 300px;gap:24px;margin-bottom:24px}
+		.section-title{font-size:18px;font-weight:700;margin:24px 0 12px 0;color:var(--accent)}
+		.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+		.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:all 0.3s}
+		.card:hover{transform:translateY(-4px);background:linear-gradient(180deg,rgba(246,200,76,0.1),rgba(255,255,255,0.03));border-color:var(--accent)}
+		.card h3{margin:0 0 8px 0;font-size:16px;color:var(--accent)}
+		.card p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}
+		.card-action{margin-top:12px;color:var(--accent);font-size:12px;font-weight:600}
+		
+		/* Sidebar */
+		aside{position:relative}
+		.panel{background:linear-gradient(180deg,rgba(0,0,0,0.4),rgba(0,0,0,0.2));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);margin-bottom:16px}
+		.panel h4{margin:0 0 12px 0;color:var(--accent);font-size:14px}
+		.panel p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}
+		.voice-btn{background:#0ea5a9;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;width:100%;margin-top:8px}
+		.voice-btn:hover{background:#0d98a1}
+		.status{font-size:11px;color:var(--muted);margin-top:8px;min-height:16px}
+		
+		/* Modal */
+		.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+		.modal.active{display:flex}
+		.modal-content{background:linear-gradient(180deg,#06121a,#04131a);padding:28px;border-radius:14px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);position:relative}
+		.modal-close{position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+		.modal-close:hover{background:rgba(255,255,255,0.1)}
+		.modal-content h2{margin-top:0;margin-bottom:16px;color:var(--accent)}
+		.modal-content h3{margin:18px 0 10px 0;color:var(--accent);font-size:16px}
+		.modal-content p{margin:8px 0;line-height:1.6;color:#ccc}
+		.modal-content ul,.modal-content ol{margin:8px 0;padding-left:20px}
+		.modal-content li{margin:6px 0;color:#ccc}
+		
+		/* Footer */
+		footer{background:rgba(0,0,0,0.5);padding:20px;text-align:center;color:var(--muted);font-size:12px;border-top:1px solid rgba(255,255,255,0.05)}
+		
+		/* Chat Messages */
+		#messages{height:120px;overflow-y:auto;background:rgba(0,0,0,0.3);border-radius:6px;padding:8px;margin-bottom:8px;display:flex;flex-direction:column;gap:6px;font-size:12px}
+		.msg{padding:8px;border-radius:6px;word-wrap:break-word}
+		.msg.user{background:#06364a;color:#fff}
+		.msg.ai{background:#0d3e48;color:#a8d5dd}
+		
+		@media(max-width:900px){main{grid-template-columns:1fr}aside{order:2}.search{width:100%}}
+		
+		.intro-banner{background:linear-gradient(135deg,rgba(14,165,169,0.15),rgba(246,200,76,0.1));padding:16px;border-radius:12px;border:1px solid rgba(246,200,76,0.3);margin-bottom:20px}
+		.intro-banner h3{margin:0 0 8px 0;color:var(--accent)}
+		.intro-banner a{color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer}
+	</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+	<div class="auth-box">
+		<h2 id="authTitle">Register Account</h2>
+		<form id="authForm" class="auth-form" onsubmit="handleAuth(event)">
+			<input id="authEmail" type="email" placeholder="Email" required>
+			<input id="authUsername" type="text" placeholder="Username" required>
+			<input id="authPassword" type="password" placeholder="Password (min 6 chars)" required>
+			<input id="authConfirm" type="password" placeholder="Confirm Password">
+			<button type="submit" id="authSubmitBtn">Register</button>
+		</form>
+		<div id="authMsg" class="auth-msg"></div>
+		<div class="auth-toggle">
+			<span id="toggleText">Already have account?</span> <button type="button" onclick="toggleAuthMode()">Login</button>
+		</div>
+	</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="hidden">
+	<div class="container">
+		<!-- HEADER -->
+		<header>
+			<div class="brand">
+				<div class="logo">KIMANI</div>
+				<div>
+					<h1>Kimani Enock Technology</h1>
+					<div class="badge">🎓 History & Religion Learning Platform</div>
+				</div>
+			</div>
+			<div class="controls">
+				<input id="search" class="search" placeholder="Search topics..." />
+				<button class="btn secondary" onclick="logout()">Logout</button>
+			</div>
+		</header>
+
+		<div class="intro-banner">
+			<h3>📖 Introduction to Quran by Dr. Margaret Matisi</h3>
+			<p>Comprehensive study of Islamic sacred text, theology, and comparative analysis. <a onclick="openTopic('quran')">Read full introduction →</a></p>
+		</div>
+
+		<main>
+			<!-- TOPICS AREA -->
+			<section>
+				<div class="section-title">📚 Learning Topics</div>
+				<div id="topicsList" class="topics"></div>
+			</section>
+
+			<!-- SIDEBAR -->
+			<aside>
+				<!-- AI Voice -->
+				<div class="panel">
+					<h4>🎧 AI Voice</h4>
+					<p>Hear about Kimani Enock Technology</p>
+					<button class="voice-btn" onclick="speakIntro()">▶ About Enock</button>
+					<button class="voice-btn" onclick="speakPlatform()" style="background:#f6c84c;color:#06111a;margin-top:6px">▶ Platform</button>
+					<div class="status" id="voiceStatus"></div>
+				</div>
+
+				<!-- User Info -->
+				<div class="panel">
+					<h4>👤 Profile</h4>
+					<p><strong id="userDisplay">User</strong></p>
+					<p style="font-size:11px">Email: <span id="emailDisplay">-</span></p>
+					<p style="font-size:11px" style="color:var(--green)">✓ Active</p>
+				</div>
+
+				<!-- Chat -->
+				<div class="panel">
+					<h4>💬 Ask AI</h4>
+					<div id="messages"></div>
+					<div style="display:flex;gap:6px">
+						<input id="aiQuestion" type="text" placeholder="Ask..." style="flex:1;padding:8px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:inherit;font-size:12px">
+						<button class="btn" style="padding:8px 12px" onclick="askAI()">Ask</button>
+					</div>
+				</div>
+			</aside>
+		</main>
+	</div>
+
+	<!-- MODAL -->
+	<div id="notesModal" class="modal">
+		<div class="modal-content">
+			<button class="modal-close" onclick="closeModal()">✕</button>
+			<div id="notesContent"></div>
+		</div>
+	</div>
+
+	<!-- FOOTER -->
+	<footer>
+		<div>© 2026 Kimani Enock Technology — Kibabii University</div>
+		<div style="margin-top:8px">Software Engineer: Kimani Enock | Phone: 0726088746</div>
+	</footer>
+</div>
+
+<script>
+	// ===== AUTH SYSTEM =====
+	let currentUser = null;
+	let authMode = 'register';
+
+	function toggleAuthMode() {
+		authMode = authMode === 'register' ? 'login' : 'register';
+		document.getElementById('authTitle').textContent = authMode === 'register' ? 'Register Account' : 'Login';
+		document.getElementById('authSubmitBtn').textContent = authMode === 'register' ? 'Register' : 'Login';
+		document.getElementById('toggleText').textContent = authMode === 'register' ? 'Already have account?' : 'No account yet?';
+		document.getElementById('authConfirm').style.display = authMode === 'register' ? 'block' : 'none';
+		document.getElementById('authMsg').innerHTML = '';
+		document.getElementById('authForm').reset();
+	}
+
+	function handleAuth(e) {
+		e.preventDefault();
+		const email = document.getElementById('authEmail').value.trim();
+		const username = document.getElementById('authUsername').value.trim();
+		const password = document.getElementById('authPassword').value.trim();
+		const msg = document.getElementById('authMsg');
+
+		if (authMode === 'register') {
+			const confirm = document.getElementById('authConfirm').value.trim();
+			if (password !== confirm) {
+				msg.innerHTML = '❌ Passwords do not match!';
+				return;
+			}
+			if (password.length < 6) {
+				msg.innerHTML = '❌ Password must be 6+ characters!';
+				return;
+			}
+
+			const users = JSON.parse(localStorage.getItem('users') || '[]');
+			if (users.some(u => u.email === email || u.username === username)) {
+				msg.innerHTML = '❌ Email or username exists!';
+				return;
+			}
+
+			users.push({ email, username, password });
+			localStorage.setItem('users', JSON.stringify(users));
+			msg.innerHTML = '✓ Registration successful! Logging in...';
+			msg.className = 'auth-msg success';
+			
+			setTimeout(() => {
+				currentUser = { email, username };
+				localStorage.setItem('currentUser', JSON.stringify(currentUser));
+				showApp();
+			}, 1000);
+		} else {
+			const users = JSON.parse(localStorage.getItem('users') || '[]');
+			const user = users.find(u => (u.email === email || u.username === email) && u.password === password);
+
+			if (!user) {
+				msg.innerHTML = '❌ Invalid email/username or password!';
+				return;
+			}
+
+			msg.innerHTML = '✓ Login successful...';
+			msg.className = 'auth-msg success';
+			
+			setTimeout(() => {
+				currentUser = { email: user.email, username: user.username };
+				localStorage.setItem('currentUser', JSON.stringify(currentUser));
+				showApp();
+			}, 800);
+		}
+	}
+
+	function showApp() {
+		document.getElementById('authScreen').classList.add('hidden');
+		document.getElementById('mainApp').classList.remove('hidden');
+		document.getElementById('userDisplay').textContent = currentUser.username;
+		document.getElementById('emailDisplay').textContent = currentUser.email;
+		renderTopics();
+		console.log('✅ App loaded for:', currentUser.username);
+	}
+
+	function logout() {
+		if (confirm('Logout?')) {
+			currentUser = null;
+			localStorage.removeItem('currentUser');
+			document.getElementById('authScreen').classList.remove('hidden');
+			document.getElementById('mainApp').classList.add('hidden');
+			authMode = 'register';
+			document.getElementById('authForm').reset();
+			location.reload();
+		}
+	}
+
+	// ===== TOPICS DATA =====
+	const topicsData = {
+		quran: {
+			title: 'Introduction to the Quran',
+			author: 'Dr. Margaret Matisi',
+			content: `<h2>Introduction to the Quran</h2>
+<p><strong>By Dr. Margaret Matisi</strong></p>
+<h3>Overview</h3>
+<p>The Quran is the central religious text of Islam, believed by Muslims to be the literal word of God (Allah) revealed to Prophet Muhammad over 23 years. It's one of the most influential texts in world history.</p>
+<h3>Structure</h3>
+<ul>
+<li><strong>114 Chapters (Surahs)</strong> - arranged by length</li>
+<li><strong>6,236 Verses (Ayahs)</strong> - covering theology, law, ethics, history</li>
+<li><strong>Two Divisions</strong> - Meccan (spiritual) and Medinan (legal)</li>
+</ul>
+<h3>Literary Forms</h3>
+<p>The Quran uses narratives, legal injunctions, rhetorical arguments, poetic language, and thematic repetition.</p>
+<h3>Major Themes</h3>
+<ol>
+<li><strong>Monotheism (Tawhid)</strong> - God's absolute oneness</li>
+<li><strong>Prophethood</strong> - Muhammad and previous prophets</li>
+<li><strong>Resurrection</strong> - Day of Judgment and eternity</li>
+<li><strong>Morality</strong> - Ethical guidance and justice</li>
+<li><strong>Law</strong> - Personal, family, and social life principles</li>
+</ol>
+<h3>Historical Context</h3>
+<p>Revealed in 7th century Arabia, addressing social and spiritual needs of that era while providing universal principles.</p>
+<h3>Interpretation (Tafsir)</h3>
+<p>Four main methods: Linguistic analysis, Historical context, Comparative study, Spiritual reflection.</p>`
+		},
+		christianity: {
+			title: 'Origins of Christianity in Kenya',
+			content: `<h2>Origins of Christianity in Kenya</h2>
+<h3>Timeline</h3>
+<ul>
+<li><strong>15th-18th Century</strong> - Portuguese traders introduce Christianity</li>
+<li><strong>1844 Onwards</strong> - Protestant missionaries from Britain and Germany</li>
+<li><strong>Late 1800s</strong> - Catholic missionary expansion</li>
+<li><strong>Post-1900</strong> - African-led churches develop</li>
+</ul>
+<h3>Impact</h3>
+<ul>
+<li>Education system establishment</li>
+<li>Healthcare infrastructure</li>
+<li>Social transformation</li>
+<li>Cultural contextualization</li>
+</ul>
+<h3>Notable Figures</h3>
+<p>Dr. Ludwig Krapf, Johann Rebmann, and African leaders shaped Kenya's Christian identity.</p>
+<h3>Today</h3>
+<p>Kenya is substantially Christian with diverse denominations, African Independent Churches, and Pentecostal movements playing vital roles.</p>`
+		},
+		african_traditions: {
+			title: 'African Traditional Religions',
+			content: `<h2>African Traditional Religions</h2>
+<h3>Core Beliefs</h3>
+<ul>
+<li>Supreme Being (God) - various names across cultures</li>
+<li>Ancestor veneration as spiritual intermediaries</li>
+<li>Sacred rituals tied to seasons and life events</li>
+<li>Connection to land and nature</li>
+<li>Community-centered practices</li>
+</ul>
+<h3>Practices</h3>
+<p><strong>Rites of Passage:</strong> Birth, naming, initiation, marriage, death</p>
+<p><strong>Specialists:</strong> Diviners, healers, ritual leaders</p>
+<p><strong>Sacred Sites:</strong> Mountains, groves, water sources</p>
+<h3>Modern Influence</h3>
+<p>ATR continues through syncretic Christianity, cultural preservation, and community structures in modern Africa.</p>`
+		},
+		islam_east_africa: {
+			title: 'Islamic Heritage in East Africa',
+			content: `<h2>Islamic Heritage in East Africa</h2>
+<h3>Historical Development</h3>
+<ul>
+<li><strong>7th-8th Century</strong> - Arab traders establish coast settlements</li>
+<li><strong>8th-16th Century</strong> - Swahili civilization flourishes</li>
+<li><strong>16th-19th Century</strong> - Sultanates era (Zanzibar, Mombasa)</li>
+<li><strong>Modern Period</strong> - Vibrant Islamic communities</li>
+</ul>
+<h3>Swahili Civilization</h3>
+<p>Unique synthesis of Islamic, African, Arab, and Asian cultures. Swahili became major center of trade and Islamic learning.</p>
+<h3>Cultural Impact</h3>
+<ul>
+<li>Swahili language development</li>
+<li>Architectural innovations</li>
+<li>Culinary traditions</li>
+<li>Artistic and literary forms</li>
+</ul>`
+		},
+		religious_reform: {
+			title: 'Religious Reform Movements',
+			content: `<h2>Religious Reform Movements</h2>
+<h3>Christian Revivals</h3>
+<ul>
+<li>East African Revival Movement (1920s-1950s+)</li>
+<li>Pentecostal movements - Holy Spirit emphasis</li>
+<li>African Independent Churches - African leadership</li>
+</ul>
+<h3>Islamic Reforms</h3>
+<ul>
+<li>Theological reinterpretation</li>
+<li>Educational expansion</li>
+<li>Community welfare initiatives</li>
+</ul>
+<h3>Broader Impact</h3>
+<p>Reform movements influenced education, medicine, social ethics, and political advocacy across African societies.</p>`
+		},
+		religion_politics: {
+			title: 'Religion & Politics 20th Century',
+			content: `<h2>Religion and Politics in the 20th Century</h2>
+<h3>Role in Independence</h3>
+<p>Religious leaders and institutions played crucial roles in nationalist movements and anti-colonial resistance.</p>
+<h3>Post-Independence</h3>
+<ul>
+<li>Constitutional religious freedom</li>
+<li>Institutions in governance and civil society</li>
+<li>Interfaith peace initiatives</li>
+</ul>
+<h3>Contemporary Influence</h3>
+<p>Religion continues shaping electoral politics, constitutional debates, moral legislation, and social policy.</p>`
+		}
+	};
+
+	// ===== RENDER TOPICS =====
+	function renderTopics() {
+		const list = document.getElementById('topicsList');
+		list.innerHTML = '';
+
+		const items = [
+			{ id: 'quran', title: '📖 Introduction to Quran', desc: 'By Dr. Margaret Matisi - Islamic text and theology' },
+			{ id: 'christianity', title: '✝ Origins of Christianity', desc: 'Missionary history and adaptation in Kenya' },
+			{ id: 'african_traditions', title: '🌍 African Traditional Religions', desc: 'Beliefs, practices and modern transformations' },
+			{ id: 'islam_east_africa', title: '☪ Islamic Heritage', desc: 'Historical trade routes and cultural exchange' },
+			{ id: 'religious_reform', title: '✨ Religious Reform', desc: 'Revival and reform movements' },
+			{ id: 'religion_politics', title: '🗳 Religion & Politics', desc: 'Faith and nation-building' }
+		];
+
+		items.forEach(item => {
+			const div = document.createElement('div');
+			div.className = 'card';
+			div.onclick = () => openTopic(item.id);
+			div.innerHTML = `
+				<h3>${item.title}</h3>
+				<p>${item.desc}</p>
+				<div class="card-action">Read Full Notes →</div>
+			`;
+			list.appendChild(div);
+		});
+
+		// Search
+		document.getElementById('search').addEventListener('input', (e) => {
+			const q = e.target.value.toLowerCase();
+			list.querySelectorAll('.card').forEach(card => {
+				card.style.display = card.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+			});
+		});
+	}
+
+	function openTopic(id) {
+		const topic = topicsData[id];
+		if (topic) {
+			document.getElementById('notesContent').innerHTML = topic.content;
+			document.getElementById('notesModal').classList.add('active');
+			console.log('📖 Opened:', topic.title);
+		}
+	}
+
+	function closeModal() {
+		document.getElementById('notesModal').classList.remove('active');
+	}
+
+	// ===== VOICE & AI =====
+	function speakIntro() {
+		const text = "Hello! I am Kimani Enock Technology artificial intelligence. I am here to help you learn about history, religion, and culture. Founded by Software Engineer Kimani Enock at Kibabii University, our platform provides comprehensive educational content covering Christianity in Kenya, Islamic heritage, African traditional religions, and comparative theology. We are committed to making religious and historical education accessible to everyone. Let us learn together!";
+		speak(text);
+	}
+
+	function speakPlatform() {
+		const text = "Welcome to Kimani Enock Technology Learning Platform. We offer interactive notes on religious and historical topics. Complete registration to access all features. Our AI assistant is ready to answer your questions. Search through our comprehensive content library. All resources are designed for smooth and effective learning. Join our community and expand your knowledge today!";
+		speak(text);
+	}
+
+	function speak(text) {
+		const status = document.getElementById('voiceStatus');
+		
+		if (!('speechSynthesis' in window)) {
+			status.innerHTML = '❌ Not supported';
+			return;
+		}
+
+		speechSynthesis.cancel();
+		status.innerHTML = '🔊 Playing...';
+
+		const utterance = new SpeechSynthesisUtterance(text);
+		utterance.rate = 0.95;
+		utterance.pitch = 1.1;
+		utterance.volume = 1;
+
+		const voices = speechSynthesis.getVoices();
+		const femaleVoice = voices.find(v => 
+			v.name.toLowerCase().includes('female') || 
+			v.name.toLowerCase().includes('woman') ||
+			v.name.toLowerCase().includes('zira') ||
+			v.name.toLowerCase().includes('samantha')
+		);
+		if (femaleVoice) utterance.voice = femaleVoice;
+
+		utterance.onend = () => {
+			status.innerHTML = '✓ Done';
+		};
+
+		utterance.onerror = () => {
+			status.innerHTML = '⚠ Error';
+		};
+
+		speechSynthesis.speak(utterance);
+		console.log('🔊 Speaking...');
+	}
+
+	function askAI() {
+		const input = document.getElementById('aiQuestion').value.trim();
+		if (!input) return;
+
+		const messagesDiv = document.getElementById('messages');
+		
+		// User message
+		const userMsg = document.createElement('div');
+		userMsg.className = 'msg user';
+		userMsg.textContent = input;
+		messagesDiv.appendChild(userMsg);
+
+		document.getElementById('aiQuestion').value = '';
+		messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+		// AI response
+		setTimeout(() => {
+			const lower = input.toLowerCase();
+			let resp = 'Try asking about Quran, Christianity, Islam, traditions, or politics.';
+
+			if (lower.includes('quran') || lower.includes('islam')) 
+				resp = 'The Quran is Islam\'s sacred text. Dr. Margaret Matisi explains its structure, themes, and interpretation in our full notes.';
+			else if (lower.includes('christian')) 
+				resp = 'Christianity in Kenya was brought by missionaries in the 1800s. It transformed education and society significantly.';
+			else if (lower.includes('tradition') || lower.includes('african')) 
+				resp = 'African Traditional Religions emphasize community, ancestors, and nature. They remain influential today.';
+			else if (lower.includes('politics')) 
+				resp = 'Religion shaped African independence movements and continues influencing politics and policy today.';
+
+			const aiMsg = document.createElement('div');
+			aiMsg.className = 'msg ai';
+			aiMsg.textContent = resp;
+			messagesDiv.appendChild(aiMsg);
+			messagesDiv.scrollTop = messagesDiv.scrollHeight;
+		}, 500);
+	}
+
+	// ===== INIT =====
+	window.addEventListener('load', () => {
+		const saved = localStorage.getItem('currentUser');
+		if (saved) {
+			currentUser = JSON.parse(saved);
+			showApp();
+		}
+
+		if ('speechSynthesis' in window) {
+			speechSynthesis.getVoices();
+		}
+
+		console.log('✅ KIMANI ENOCK TECHNOLOGY READY');
+	});
+
+	document.addEventListener('keypress', (e) => {
+		if (e.key === 'Enter' && document.activeElement.id === 'aiQuestion') askAI();
+	});
+</script>
+
+</body>
+</html>
