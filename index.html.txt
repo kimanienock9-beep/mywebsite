@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Task Platform</title>
+</head>
+<body>
+    <h1>Welcome to My Task Earning Platform</h1>
+    <p>Register and start earning today!</p>
+</body>
+</html>oll
